@@ -8,12 +8,14 @@ export async function POST(request: Request) {
       id: '1',
       name: 'User',
       isVip: false,
+      purchasedCourses: ['1', '2'] 
     })
   } else if (username === 'vip' && password === 'vippassword') {
     return NextResponse.json({
       id: '2',
       name: 'VIP User',
       isVip: true,
+      purchasedCourses: ['1', '3'] 
     })
   } else {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/context/AuthContext'
 
 type Course = {
   id: string
@@ -40,6 +41,9 @@ const courses: Course[] = [
 ]
 
 export default function CoursesPage() {
+  const {user} = useAuth();
+  console.log("user===",user)
+  
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLevel, setSelectedLevel] = useState('')
 
@@ -47,6 +51,11 @@ export default function CoursesPage() {
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (selectedLevel === '' || course.level === selectedLevel)
   )
+  const hasPurchased = (courseId: string) => {
+    if(user) {
+      return user.purchasedCourses.includes(courseId)
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -83,9 +92,15 @@ export default function CoursesPage() {
                 <span>{course.level}</span>
                 <span>{course.duration}</span>
               </div>
-              <Link href={`/courses/${course.id}`} className="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-                View Course
-              </Link>
+              {hasPurchased(course.id) ? (
+                <Link href={`/courses/${course.id}`} className="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+                  Go to Course
+                </Link>
+              ) : (
+                <div className="block w-full text-center bg-gray-400 text-white font-semibold py-2 px-4 rounded cursor-not-allowed">
+                  View Course
+                </div>
+              )}
             </div>
           </div>
         ))}

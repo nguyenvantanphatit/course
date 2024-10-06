@@ -10,10 +10,6 @@ export default function Home() {
           <h2 className="text-2xl font-semibold mb-2">Courses</h2>
           <p className="text-gray-600">Explore our wide range of courses and start learning today.</p>
         </Link>
-        <Link href="/learn" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-          <h2 className="text-2xl font-semibold mb-2">Learn</h2>
-          <p className="text-gray-600">Access your current lessons and continue your learning journey.</p>
-        </Link>
         <Link href="/progress" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
           <h2 className="text-2xl font-semibold mb-2">Progress</h2>
           <p className="text-gray-600">Track your learning progress and achievements.</p>
@@ -35,7 +31,7 @@ export default function Home() {
           <p className="text-gray-600">View your achievements and compete on the leaderboard.</p>
         </Link>
       </div>
-        <CoursePreview /> 
+      <CoursePreview />
     </div>
   )
 }
