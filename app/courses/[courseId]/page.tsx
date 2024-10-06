@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import VideoPlayer from '@/components/VideoPlayer'
 import CommentSection from '@/components/CommentSection'
 import QuizSection from '@/components/QuizSection'
+import { useRouter } from 'next/router'
 
 type Lesson = {
   id: string
@@ -129,11 +130,11 @@ const courses: Course[] = [
 
 export default function Course({ params }: { params: { courseId: string } }) {
   const { user } = useAuth()
+  const router = useRouter();
   const courseId = params.courseId as string
   const [course, setCourse] = useState<Course | null>(null)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0)
   const [showQuiz, setShowQuiz] = useState(false)
-
   useEffect(() => {
     const foundCourse = courses.find(c => c.id === courseId)
     if (foundCourse) {
@@ -147,6 +148,7 @@ export default function Course({ params }: { params: { courseId: string } }) {
   }, [courseId])
 
   if (!user) {
+    router.push("/login")
     return <div className="container mx-auto px-4 py-8">Please log in to view this course.</div>
   }
 
