@@ -12,7 +12,6 @@ import {
   Tooltip, 
   Legend 
 } from 'chart.js'
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 
 ChartJS.register(
   CategoryScale,
@@ -30,51 +29,12 @@ type ProgressData = {
   timeSpent: number
 }
 
-const styles = StyleSheet.create({
-  page: {
-    flexDirection: 'column',
-    backgroundColor: '#E4E4E4',
-    padding: 30,
-  },
-  section: {
-    margin: 10,
-    padding: 10,
-    flexGrow: 1,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 10,
-  },
-  text: {
-    fontSize: 12,
-    marginBottom: 5,
-  },
-})
-
-const ProgressReport = ({ progressData }: { progressData: ProgressData[] }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.section}>
-        <Text style={styles.title}>Learning Progress Report</Text>
-        {progressData.map((data, index) => (
-          <View key={index}>
-            <Text style={styles.text}>Lesson {data.lessonId}:</Text>
-            <Text style={styles.text}>Completed: {data.completed ? 'Yes' : 'No'}</Text>
-            <Text style={styles.text}>Quiz Score: {data.quizScore}%</Text>
-            <Text style={styles.text}>Time Spent: {data.timeSpent} minutes</Text>
-          </View>
-        ))}
-      </View>
-    </Page>
-  </Document>
-)
 
 export default function ProgressDashboard() {
   const { user } = useAuth()
   const [progressData, setProgressData] = useState<ProgressData[]>([])
 
   useEffect(() => {
-    // In a real app, fetch this data from an API
     const mockProgressData: ProgressData[] = [
       { lessonId: '1', completed: true, quizScore: 80, timeSpent: 45 },
       { lessonId: '2', completed: true, quizScore: 90, timeSpent: 30 },
@@ -137,17 +97,6 @@ export default function ProgressDashboard() {
       </div>
       <div className="bg-white p-6 rounded-lg shadow-md mb-8">
         <Bar options={options} data={chartData} />
-      </div>
-      <div className="text-center">
-        {/* <PDFDownloadLink document={<ProgressReport progressData={progressData} />} fileName="progress_report.pdf">
-          {({ blob, url, loading, error }) =>
-            loading ? 'Generating PDF...' : (
-              <a href={url} download="progress_report.pdf" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Download Progress Report
-              </a>
-            )
-          }
-        </PDFDownloadLink> */}
       </div>
     </div>
   )
