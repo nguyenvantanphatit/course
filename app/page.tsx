@@ -1,4 +1,3 @@
-import CoursePreview from '@/components/CoursePreview'
 import Link from 'next/link'
 
 export default function Home() {
@@ -8,6 +7,10 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link href="/courses" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
           <h2 className="text-2xl font-semibold mb-2">Courses</h2>
+          <p className="text-gray-600">Explore our wide range of courses and start learning today.</p>
+        </Link>
+        <Link href="/learn" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+          <h2 className="text-2xl font-semibold mb-2">Learn</h2>
           <p className="text-gray-600">Explore our wide range of courses and start learning today.</p>
         </Link>
         <Link href="/progress" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
@@ -31,7 +34,6 @@ export default function Home() {
           <p className="text-gray-600">View your achievements and compete on the leaderboard.</p>
         </Link>
       </div>
-      <CoursePreview />
     </div>
   )
 }

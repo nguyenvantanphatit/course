@@ -12,6 +12,7 @@ export default function Navbar() {
                     <Link href="/" className="text-2xl font-bold">Learning Platform</Link>
                     <div className="space-x-4">
                         <Link href="/courses">Courses</Link>
+                        <Link href="/learn">Learn</Link>
                         <Link href="/progress">Progress</Link>
                         <Link href="/schedule">Schedule</Link>
                         <Link href="/forum">Forum</Link>

@@ -37,32 +37,27 @@ const courses: Course[] = [
     instructor: 'Bob Johnson',
     level: 'Advanced',
     duration: '8 weeks'
-  },
-  {
-    id: '4',
-    title: 'Full Stack Development with Next.js',
-    description: 'Build complete web applications using Next.js, React, and Tailwind CSS.',
-    instructor: 'Alice Smith',
-    level: 'Advanced',
-    duration: '8 weeks'
   }
-  
 ]
 
 export default function CoursesPage() {
-  const { user } = useAuth();
+  const {user} = useAuth();
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLevel, setSelectedLevel] = useState('')
 
-  const filteredCourses = courses.filter(course =>
+  const filteredCourses = courses.filter(course => 
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (selectedLevel === '' || course.level === selectedLevel)
   )
+  const hasPurchased = (courseId: string) => {
+    if(user) {
+      return user.purchasedCourses.includes(courseId)
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8 text-center">Available Courses</h1>
-
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
         <input
           type="text"
@@ -94,9 +89,15 @@ export default function CoursesPage() {
                 <span>{course.level}</span>
                 <span>{course.duration}</span>
               </div>
-              <Link href={`/courses/${course.id}`} className="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-                Go to Course
-              </Link>
+              {hasPurchased(course.id) ? (
+                <Link href={`/learn/${course.id}`} className="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+                  Go to Course
+                </Link>
+              ) : (
+                <div className="block w-full text-center bg-gray-400 text-white font-semibold py-2 px-4 rounded cursor-not-allowed">
+                  View Course
+                </div>
+              )}
             </div>
           </div>
         ))}
