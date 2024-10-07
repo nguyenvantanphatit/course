@@ -42,8 +42,6 @@ const courses: Course[] = [
 
 export default function CoursesPage() {
   const {user} = useAuth();
-  console.log("user===",user)
-  
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLevel, setSelectedLevel] = useState('')
 

@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import VideoPlayer from '@/components/VideoPlayer'
@@ -13,6 +12,7 @@ type Lesson = {
   duration: string
   completed: boolean
   videoId: string;
+  locked: any;
 }
 
 type Course = {
@@ -40,10 +40,10 @@ const courses: Course[] = [
     level: 'Beginner',
     duration: '4 weeks',
     lessons: [
-      { id: '1-1', title: 'What is React?', duration: '15 minutes', videoId: "5QP0mvrJkiY", completed: false },
-      { id: '1-2', title: 'Creating Components', duration: '30 minutes', videoId: "TPACABQTHvM", completed: false },
-      { id: '1-3', title: 'State and Props', duration: '45 minutes', videoId: "u6PQ5xZAv7Q", completed: false },
-      { id: '1-4', title: 'Hooks in React', duration: '60 minutes', videoId: "YH6ui_dG7Ow", completed: false },
+      { id: '1-1', title: 'What is React?', duration: '15 minutes', videoId: "5QP0mvrJkiY", completed: false, locked: false },
+      { id: '1-2', title: 'Creating Components', duration: '30 minutes', videoId: "TPACABQTHvM", completed: false, locked: true },
+      { id: '1-3', title: 'State and Props', duration: '45 minutes', videoId: "u6PQ5xZAv7Q", completed: false, locked: true },
+      { id: '1-4', title: 'Hooks in React', duration: '60 minutes', videoId: "YH6ui_dG7Ow", completed: false, locked: true },
     ],
     questions: [
       {
@@ -86,10 +86,10 @@ const courses: Course[] = [
     level: 'Intermediate',
     duration: '6 weeks',
     lessons: [
-      { id: '2-1', title: 'Closures and Scope', duration: '45 minutes', videoId: "QzPuWB9Pius", completed: false },
-      { id: '2-2', title: 'Prototypes and Inheritance', duration: '60 minutes', videoId: "jTRfhbWRuro", completed: false },
-      { id: '2-3', title: 'Async Programming with Promises', duration: '75 minutes', videoId: "yVsaCVEfPn4", completed: false },
-      { id: '2-4', title: 'ES6+ Features', duration: '90 minutes', videoId: "N_sUsq_y10U", completed: false },
+      { id: '2-1', title: 'Closures and Scope', duration: '45 minutes', videoId: "QzPuWB9Pius", completed: false, locked: false },
+      { id: '2-2', title: 'Prototypes and Inheritance', duration: '60 minutes', videoId: "jTRfhbWRuro", completed: false , locked: true},
+      { id: '2-3', title: 'Async Programming with Promises', duration: '75 minutes', videoId: "yVsaCVEfPn4", completed: false, locked: true },
+      { id: '2-4', title: 'ES6+ Features', duration: '90 minutes', videoId: "N_sUsq_y10U", completed: false, locked: true },
     ],
     questions: [
       {
@@ -124,9 +124,32 @@ const courses: Course[] = [
       }
     ]
   },
+  {
+    id: '3',
+    title: 'Advanced NextJs Concepts',
+    description: 'Dive deep into advanced JavaScript topics like closures, prototypes, and async programming.',
+    instructor: 'Jane Smith',
+    level: 'Intermediate',
+    duration: '6 weeks',
+    lessons: [
+      { id: '3-1', title: 'Closures and Scope', duration: '45 minutes', videoId: "QzPuWB9Pius", completed: false, locked: false },
+    ],
+    questions: [
+      {
+        id: 'q1',
+        question: 'What is React?',
+        options: ['A database', 'A JavaScript library', 'A programming language', 'An operating system'],
+        correctAnswer: 1
+      },
+      {
+        id: 'q2',
+        question: 'What is JSX?',
+        options: ['A JavaScript extension', 'A React component', 'A styling framework', 'A build tool'],
+        correctAnswer: 0
+      }
+    ]
+  },
 ]
-
-
 
 export default function Course({ params }: { params: { courseId: string } }) {
   const { user } = useAuth()
@@ -135,10 +158,16 @@ export default function Course({ params }: { params: { courseId: string } }) {
   const [course, setCourse] = useState<Course | null>(null)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0)
   const [showQuiz, setShowQuiz] = useState(false)
+
   useEffect(() => {
     const foundCourse = courses.find(c => c.id === courseId)
     if (foundCourse) {
-      setCourse(foundCourse)
+      // Khởi tạo trạng thái hoàn thành cho các bài học
+      const initializedLessons = foundCourse.lessons.map((lesson, index) => ({
+        ...lesson,
+        completed: index === 0 ? false : true, // Chỉ mở khóa bài học đầu tiên
+      }))
+      setCourse({ ...foundCourse, lessons: initializedLessons })
     }
 
     const savedProgress = localStorage.getItem(`course_${courseId}_progress`)
@@ -148,7 +177,6 @@ export default function Course({ params }: { params: { courseId: string } }) {
   }, [courseId])
 
   if (!user) {
-    router.push("/login")
     return <div className="container mx-auto px-4 py-8">Please log in to view this course.</div>
   }
 
@@ -165,6 +193,12 @@ export default function Course({ params }: { params: { courseId: string } }) {
   const handleQuizComplete = (score: number) => {
     const updatedLessons = [...course.lessons]
     updatedLessons[currentLessonIndex].completed = true
+    
+    // Mở khóa bài học tiếp theo nếu có
+    if (currentLessonIndex < course.lessons.length - 1) {
+      updatedLessons[currentLessonIndex + 1].locked = false
+    }
+    
     setCourse({ ...course, lessons: updatedLessons })
 
     if (currentLessonIndex < course.lessons.length - 1) {
@@ -179,8 +213,10 @@ export default function Course({ params }: { params: { courseId: string } }) {
   }
 
   const handleLessonClick = (index: number) => {
-    setCurrentLessonIndex(index)
-    setShowQuiz(false)
+    if (!course.lessons[index].locked) {
+      setCurrentLessonIndex(index)
+      setShowQuiz(false)
+    }
   }
 
   return (
@@ -210,20 +246,27 @@ export default function Course({ params }: { params: { courseId: string } }) {
             {course.lessons.map((lesson, index) => (
               <li
                 key={lesson.id}
-                className={`p-3 rounded cursor-pointer ${
-                  index === currentLessonIndex
-                    ? 'bg-blue-100 font-semibold'
+                className={`p-3 rounded ${
+                  lesson.locked
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : index === currentLessonIndex
+                    ? 'bg-blue-100 font-semibold cursor-pointer'
                     : lesson.completed
-                    ? 'bg-green-100'
-                    : 'bg-gray-100 hover:bg-gray-200'
+                    ? 'bg-green-100 cursor-pointer'
+                    : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'
                 }`}
-                onClick={() => handleLessonClick(index)}
+                onClick={() => !lesson.locked && handleLessonClick(index)}
               >
                 <div className="flex items-center justify-between">
                   <span>{lesson.title}</span>
                   {lesson.completed && (
                     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  {lesson.locked && (
+                    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   )}
                 </div>

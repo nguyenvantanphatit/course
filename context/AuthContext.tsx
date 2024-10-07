@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
 type User = {
-  purchasedCourses: any
+  purchasedCourses: Array<any>
   id: string
   name: string
   isVip: boolean

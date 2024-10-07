@@ -22,18 +22,26 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
   const { user } = useAuth()
 
   useEffect(() => {
-    const tag = document.createElement('script')
-    tag.src = 'https://www.youtube.com/iframe_api'
-    const firstScriptTag = document.getElementsByTagName('script')[0]
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
 
-    window.onYouTubeIframeAPIReady = () => {
+      window.onYouTubeIframeAPIReady = () => {
+        setIsReady(true)
+      }
+    } else {
       setIsReady(true)
     }
   }, [])
 
   useEffect(() => {
     if (!isReady) return
+
+    if (playerRef.current) {
+      playerRef.current.destroy()
+    }
 
     playerRef.current = new window.YT.Player('youtube-player', {
       height: '360',
@@ -46,6 +54,8 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
         onStateChange: onPlayerStateChange,
       },
     })
+
+    setIsVideoEnded(false)
 
     return () => {
       if (playerRef.current) {
