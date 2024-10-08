@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ChevronDownIcon, SearchIcon } from 'lucide-react'
 
 type Product = {
@@ -49,7 +49,7 @@ const sampleProducts: Product[] = [
 ];
 
 export default function FilterPage() {
-    const [products, setProducts] = useState<Product[]>(sampleProducts)
+    const [products, setProducts] = useState<Product[]>(sampleProducts);
     const [filters, setFilters] = useState({
         minPrice: 0,
         maxPrice: 1000,
@@ -60,37 +60,52 @@ export default function FilterPage() {
         offer: '',
         discount: 0,
         sortBy: ''
-    })
+    });
+
+    const applyFiltersAndSort = useCallback(() => {
+        let filteredProducts = sampleProducts.filter(product => {
+            return (
+                product.price >= filters.minPrice &&
+                product.price <= filters.maxPrice &&
+                (!filters.size || product.size === filters.size) &&
+                (!filters.type || product.type === filters.type) &&
+                (!filters.availability || product.availability === filters.availability) &&
+                (!filters.color || product.color === filters.color) &&
+                (!filters.offer || product.offer === filters.offer) &&
+                product.discount >= filters.discount
+            );
+        });
+
+        switch (filters.sortBy) {
+            case 'priceAsc':
+                filteredProducts.sort((a, b) => a.price - b.price);
+                break;
+            case 'priceDesc':
+                filteredProducts.sort((a, b) => b.price - a.price);
+                break;
+            case 'nameAsc':
+                filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case 'nameDesc':
+                filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+            default:
+                break; 
+        }
+
+        setProducts(filteredProducts);
+    }, [filters]);
 
     useEffect(() => {
-        let filteredProducts = sampleProducts.filter(product =>
-            product.price >= filters.minPrice &&
-            product.price <= filters.maxPrice &&
-            (filters.size === '' || product.size === filters.size) &&
-            (filters.type === '' || product.type === filters.type) &&
-            (filters.availability === '' || product.availability === filters.availability) &&
-            (filters.color === '' || product.color === filters.color) &&
-            (filters.offer === '' || product.offer === filters.offer) &&
-            product.discount >= filters.discount
-        )
-        if (filters.sortBy === 'priceAsc') {
-            filteredProducts = filteredProducts.sort((a, b) => a.price - b.price);
-        } else if (filters.sortBy === 'priceDesc') {
-            filteredProducts = filteredProducts.sort((a, b) => b.price - a.price);
-        } else if (filters.sortBy === 'nameAsc') {
-            filteredProducts = filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (filters.sortBy === 'nameDesc') {
-            filteredProducts = filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-        }
-        setProducts(filteredProducts)
-    }, [filters])
+        applyFiltersAndSort();
+    }, [applyFiltersAndSort]);
 
-    const handleFilterChange = (filterName: string, value: string | number) => {
+    const handleFilterChange = (filterName: keyof typeof filters, value: string | number) => {
         setFilters(prevFilters => ({
             ...prevFilters,
             [filterName]: value
-        }))
-    }
+        }));
+    };
 
     return (
         <section className="py-24 relative">
