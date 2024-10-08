@@ -39,7 +39,7 @@ export default function Footer() {
                                 <li ><a href="javascript:;" className=" text-gray-600 hover:text-gray-900">Privacy Policy</a></li>
                             </ul>
                         </div>
-                        <div className="lg:mx-auto text-left ">
+                        <div className="lg:mx-auto text-left">
                             <h4 className="text-lg text-gray-900 font-medium mb-7">Subscribe</h4>
                             <p className="text-sm text-gray-500 leading-6 mb-7">Subscribe to get the latest news from us</p>
                             <a href="javascript:;" className="flex items-center justify-center gap-2 border border-indigo-600 rounded-full py-3 px-6 w-fit lg:mx-0  text-sm text-indigo-600 font-semibold transition-all duration-500 hover:bg-indigo-50">Subscribe<svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">

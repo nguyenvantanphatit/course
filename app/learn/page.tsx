@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import DailyChallenge from '@/components/DailyChallenge'
+import LearningStreak from '@/components/LearningStreak'
+import PomodoroTimer from '@/components/PomodoroTimer'
 
 type Course = {
   id: string
@@ -41,16 +44,16 @@ const courses: Course[] = [
 ]
 
 export default function CoursesPage() {
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLevel, setSelectedLevel] = useState('')
 
-  const filteredCourses = courses.filter(course => 
+  const filteredCourses = courses.filter(course =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (selectedLevel === '' || course.level === selectedLevel)
   )
   const hasPurchased = (courseId: string) => {
-    if(user) {
+    if (user) {
       return user.purchasedCourses.includes(courseId)
     }
   }
@@ -58,6 +61,11 @@ export default function CoursesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8 text-center">Available Courses</h1>
+      <div>
+        <DailyChallenge />
+        <LearningStreak />
+        <PomodoroTimer />
+      </div>
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
         <input
           type="text"
