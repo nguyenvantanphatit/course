@@ -30,18 +30,27 @@ export default function Component({ videoId, onComplete }: VideoPlayerProps) {
   const [segments, setSegments] = useState<Segment[]>([])
 
   const calculateSegments = useCallback((duration: number): Segment[] => {
-    const segments = [];
-    let start = 0;
-    let segmentDuration = 60;
-
-    while (start < duration) {
-      const end = Math.min(start + segmentDuration, duration);
-      segments.push({ start, end });
-      start = end;
-      segmentDuration *= 2;
+    if (duration <= 60) {
+      return [{ start: 0, end: duration }]
+    } else if (duration <= 3600) {
+      return [
+        { start: 0, end: 60 },
+        { start: 60, end: duration }
+      ]
+    } else if (duration <= 7200) {
+      return [
+        { start: 0, end: 60 },
+        { start: 60, end: 3600 },
+        { start: 3600, end: duration }
+      ]
+    } else {
+      return [
+        { start: 0, end: 60 },
+        { start: 60, end: 3600 },
+        { start: 3600, end: 7200 },
+        { start: 7200, end: duration }
+      ]
     }
-
-    return segments;
   }, [])
 
   const handleSegmentChange = useCallback(() => {
