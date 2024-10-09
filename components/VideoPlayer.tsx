@@ -14,24 +14,41 @@ declare global {
     YT: any
   }
 }
-
+type Segment = {
+  start: number
+  end: number
+}
 export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
   const playerRef = useRef<any>(null)
   const [isReady, setIsReady] = useState(false)
   const [isVideoEnded, setIsVideoEnded] = useState(false)
   const { user } = useAuth()
   const [videoDuration, setVideoDuration] = useState(0)
-  const [currentSegment, setCurrentSegment] = useState(0)
   const [segments, setSegments] = useState([{ start: 0, end: 120 }])
 
-  const handleSegmentChange = useCallback(() => {
-    if (currentSegment < segments.length - 1) {
-      setCurrentSegment((prevSegment) => prevSegment + 1)
+  const calculateSegments = useCallback((duration: number): Segment[] => {
+    if (duration <= 60) {
+      return [{ start: 0, end: duration }]
+    } else if (duration <= 3600) {
+      return [
+        { start: 0, end: 60 },
+        { start: 60, end: duration }
+      ]
+    } else if (duration <= 7200) {
+      return [
+        { start: 0, end: 60 },
+        { start: 60, end: 3600 },
+        { start: 3600, end: duration }
+      ]
     } else {
-      onComplete()
+      return [
+        { start: 0, end: 60 },
+        { start: 60, end: 3600 },
+        { start: 3600, end: 7200 },
+        { start: 7200, end: duration }
+      ]
     }
-  }, [currentSegment, segments.length, onComplete])
-
+  }, [])
   useEffect(() => {
     const loadYouTubeAPI = () => {
       const tag = document.createElement('script')
@@ -83,7 +100,8 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
 
   const onPlayerStateChange = (event: any) => {
     if (event.data === window.YT.PlayerState.ENDED) {
-      setIsVideoEnded(true)
+      setIsVideoEnded(true);
+      onComplete();
     }
   }
 
@@ -104,25 +122,4 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
       )}
     </div>
   )
-}
-
-function calculateSegments(videoDuration: number) {
-  if (videoDuration <= 60) {
-    return [{ start: 0, end: videoDuration }]
-  } else if (videoDuration <= 3600) {
-    return [{ start: 0, end: 60 }, { start: 61, end: videoDuration }]
-  } else if (videoDuration <= 7200) {
-    return [
-      { start: 0, end: 60 },
-      { start: 61, end: 3660 },
-      { start: 3661, end: videoDuration },
-    ]
-  } else {
-    return [
-      { start: 0, end: 60 },
-      { start: 61, end: 3660 },
-      { start: 3661, end: 7200 },
-      { start: 7201, end: videoDuration },
-    ]
-  }
 }

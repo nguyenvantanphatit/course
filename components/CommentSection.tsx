@@ -11,7 +11,7 @@ type Comment = {
   timestamp: number
 }
 
-export default function CommentSection({ lessonId }: { lessonId: string }) {
+export default function CommentSection({ lessonId }: { lessonId: number }) {
   const { user } = useAuth()
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')

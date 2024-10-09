@@ -8,7 +8,7 @@ import Image from 'next/image'
 import PomodoroTimer from '@/components/PomodoroTimer'
 
 type Lesson = {
-  id: string
+  id: number
   title: string
   duration: string
   completed: boolean
@@ -41,10 +41,10 @@ const courses: Course[] = [
     level: 'Beginner',
     duration: '4 weeks',
     lessons: [
-      { id: '1', title: 'What is React?', duration: '15 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: false,},
-      { id: '2', title: 'Creating Components', duration: '30 minutes', videoId: "TPACABQTHvM", completed: false, locked: true },
-      { id: '3', title: 'State and Props', duration: '45 minutes', videoId: "u6PQ5xZAv7Q", completed: false, locked: true },
-      { id: '4', title: 'Hooks in React', duration: '60 minutes', videoId: "YH6ui_dG7Ow", completed: false, locked: true },
+      { id: 1, title: 'What is React?', duration: '15 minutes', videoId: "TPACABQTHvM", completed: false, locked: false,},
+      { id: 2, title: 'Creating Components', duration: '30 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: true },
+      { id: 3, title: 'State and Props', duration: '45 minutes', videoId: "u6PQ5xZAv7Q", completed: false, locked: true },
+      { id: 4, title: 'Hooks in React', duration: '60 minutes', videoId: "YH6ui_dG7Ow", completed: false, locked: true },
     ],
     questions: [
       {
@@ -87,10 +87,10 @@ const courses: Course[] = [
     level: 'Intermediate',
     duration: '6 weeks',
     lessons: [
-      { id: '1', title: 'Closures and Scope', duration: '45 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: false },
-      { id: '2', title: 'Prototypes and Inheritance', duration: '60 minutes', videoId: "jTRfhbWRuro", completed: false, locked: true },
-      { id: '3', title: 'Async Programming with Promises', duration: '75 minutes', videoId: "yVsaCVEfPn4", completed: false, locked: true },
-      { id: '4', title: 'ES6+ Features', duration: '90 minutes', videoId: "N_sUsq_y10U", completed: false, locked: true },
+      { id: 1, title: 'Closures and Scope', duration: '45 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: false },
+      { id: 2, title: 'Prototypes and Inheritance', duration: '60 minutes', videoId: "jTRfhbWRuro", completed: false, locked: true },
+      { id: 3, title: 'Async Programming with Promises', duration: '75 minutes', videoId: "yVsaCVEfPn4", completed: false, locked: true },
+      { id: 4, title: 'ES6+ Features', duration: '90 minutes', videoId: "N_sUsq_y10U", completed: false, locked: true },
     ],
     questions: [
       {
@@ -133,7 +133,7 @@ const courses: Course[] = [
     level: 'Intermediate',
     duration: '6 weeks',
     lessons: [
-      { id: '1', title: 'Closures and Scope', duration: '45 minutes', videoId: "QzPuWB9Pius", completed: false, locked: false },
+      { id: 1, title: 'Closures and Scope', duration: '45 minutes', videoId: "QzPuWB9Pius", completed: false, locked: false },
     ],
     questions: [
       {
@@ -154,65 +154,60 @@ const courses: Course[] = [
 
 export default function Course({ params }: { params: { learnId: string } }) {
   const { user } = useAuth()
-  const learnId = params.learnId as string
-  console.log("learnId",learnId)
+  const learnId = params.learnId
   const [course, setCourse] = useState<Course | null>(null)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0)
   const [showQuiz, setShowQuiz] = useState(false)
-  
+
   useEffect(() => {
     const foundCourse = courses.find(c => c.id === learnId)
     if (foundCourse) {
       const initializedLessons = foundCourse.lessons.map((lesson, index) => ({
         ...lesson,
+        locked: index !== 0
       }))
       setCourse({ ...foundCourse, lessons: initializedLessons })
-      
     }
-    
 
     const savedProgress = localStorage.getItem(`course_${learnId}_progress`)
     if (savedProgress) {
       setCurrentLessonIndex(parseInt(savedProgress))
-    }
-    else {
-      setCurrentLessonIndex(1)
+    } else {
+      setCurrentLessonIndex(0)
     }
   }, [learnId])
-  
+
   if (!user) {
     return <div className="container mx-auto px-4 py-8">Please log in to view this course.</div>
   }
-  
+
   if (!course) {
     return <div className="container mx-auto px-4 py-8">Course not found.</div>
   }
-  
-  const currentLesson = course.lessons[currentLessonIndex - 1]
+
+  const currentLesson = course.lessons[currentLessonIndex]
+
   const handleLessonComplete = () => {
     setShowQuiz(true)
   }
-  
+
   const handleQuizComplete = (score: number) => {
     const updatedLessons = [...course.lessons]
     updatedLessons[currentLessonIndex].completed = true
-    
-    if (currentLessonIndex < course.lessons.length - 1) {
-      updatedLessons[currentLessonIndex + 1].locked = false
-    }
-    
-    setCourse({ ...course, lessons: updatedLessons })
-    
-    if (currentLessonIndex < course.lessons.length - 1) {
-      const nextIndex = currentLessonIndex + 1
-      setCurrentLessonIndex(nextIndex)
+
+    let nextLessonIndex = currentLessonIndex + 1
+    if (nextLessonIndex < course.lessons.length) {
+      updatedLessons[nextLessonIndex].locked = false
+      setCurrentLessonIndex(nextLessonIndex)
       setShowQuiz(false)
-      localStorage.setItem(`course_${learnId}_progress`, nextIndex.toString())
+      localStorage.setItem(`course_${learnId}_progress`, nextLessonIndex.toString())
     } else {
       alert(`Congratulations! You've completed the course with a score of ${score}/${course.questions.length}`)
     }
+
+    setCourse({ ...course, lessons: updatedLessons })
   }
-  
+
   const handleLessonClick = (index: number) => {
     if (!course.lessons[index].locked) {
       setCurrentLessonIndex(index)
@@ -257,10 +252,9 @@ export default function Course({ params }: { params: { learnId: string } }) {
                     <>
                       <div>
                         <VideoPlayer
-                          videoId={currentLesson?.videoId ? currentLesson?.videoId : "Mcw8Mp8PYUE"}
+                          videoId={currentLesson?.videoId}
                           onComplete={handleLessonComplete}
                         />
-                        <div>{currentLesson.videoId}</div>
                         <div>{currentLesson.id}</div>
                       </div>
                       <h2 className="text-2xl font-semibold my-4">{currentLesson.title}</h2>
