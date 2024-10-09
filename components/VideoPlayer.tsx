@@ -44,8 +44,8 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
     }
 
     playerRef.current = new window.YT.Player('youtube-player', {
-      height: '360',
-      width: '640',
+      height: '460',
+      width: '1080',
       videoId: videoId,
       playerVars: {
         controls: user?.isVip ? 1 : 0,

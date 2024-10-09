@@ -16,7 +16,7 @@ type Flashcard = {
 type Course = {
   id: string;
   title: string;
-  description: string;  // New field for description
+  description: string;
   flashcards: Flashcard[];
 };
 
