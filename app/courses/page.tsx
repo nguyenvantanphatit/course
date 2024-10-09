@@ -63,7 +63,6 @@ export default function CoursesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8 text-center">Available Courses</h1>
-      <FlashcardSystem />
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
         <input
           type="text"
@@ -102,6 +101,7 @@ export default function CoursesPage() {
           </div>
         ))}
       </div>
+      <FlashcardSystem />
     </div>
   )
 }

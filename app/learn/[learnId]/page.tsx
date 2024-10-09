@@ -41,11 +41,7 @@ const courses: Course[] = [
     level: 'Beginner',
     duration: '4 weeks',
     lessons: [
-      {
-        id: '1', title: 'What is React?', duration: '15 minutes', videoId: "5QP0mvrJkiY", completed: false, locked: false,
-
-
-      },
+      { id: '1', title: 'What is React?', duration: '15 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: false,},
       { id: '2', title: 'Creating Components', duration: '30 minutes', videoId: "TPACABQTHvM", completed: false, locked: true },
       { id: '3', title: 'State and Props', duration: '45 minutes', videoId: "u6PQ5xZAv7Q", completed: false, locked: true },
       { id: '4', title: 'Hooks in React', duration: '60 minutes', videoId: "YH6ui_dG7Ow", completed: false, locked: true },
@@ -91,7 +87,7 @@ const courses: Course[] = [
     level: 'Intermediate',
     duration: '6 weeks',
     lessons: [
-      { id: '1', title: 'Closures and Scope', duration: '45 minutes', videoId: "QzPuWB9Pius", completed: false, locked: false },
+      { id: '1', title: 'Closures and Scope', duration: '45 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: false },
       { id: '2', title: 'Prototypes and Inheritance', duration: '60 minutes', videoId: "jTRfhbWRuro", completed: false, locked: true },
       { id: '3', title: 'Async Programming with Promises', duration: '75 minutes', videoId: "yVsaCVEfPn4", completed: false, locked: true },
       { id: '4', title: 'ES6+ Features', duration: '90 minutes', videoId: "N_sUsq_y10U", completed: false, locked: true },
@@ -186,20 +182,19 @@ export default function Course({ params }: { params: { learnId: string } }) {
     return <div className="container mx-auto px-4 py-8">Course not found.</div>
   }
 
-  const currentLesson = course.lessons[currentLessonIndex]
-
+  const currentLesson = course.lessons[currentLessonIndex - 1]
   const handleLessonComplete = () => {
     setShowQuiz(true)
   }
-
+  
   const handleQuizComplete = (score: number) => {
     const updatedLessons = [...course.lessons]
     updatedLessons[currentLessonIndex].completed = true
-
+    
     if (currentLessonIndex < course.lessons.length - 1) {
       updatedLessons[currentLessonIndex + 1].locked = false
     }
-
+    
     setCourse({ ...course, lessons: updatedLessons })
 
     if (currentLessonIndex < course.lessons.length - 1) {
@@ -211,14 +206,13 @@ export default function Course({ params }: { params: { learnId: string } }) {
       alert(`Congratulations! You've completed the course with a score of ${score}/${course.questions.length}`)
     }
   }
-
+  
   const handleLessonClick = (index: number) => {
     if (!course.lessons[index].locked) {
       setCurrentLessonIndex(index)
       setShowQuiz(false)
     }
   }
-
   return (
     <>
       <PomodoroTimer />
@@ -260,6 +254,8 @@ export default function Course({ params }: { params: { learnId: string } }) {
                           videoId={currentLesson.videoId}
                           onComplete={handleLessonComplete}
                         />
+                        <div>{currentLesson.videoId}</div>
+                        <div>{currentLesson.id}</div>
                       </div>
                       <h2 className="text-2xl font-semibold my-4">{currentLesson.title}</h2>
                       <p className="text-gray-600 mb-4">Duration: {currentLesson.duration}</p>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 
 type VideoPlayerProps = {
@@ -20,6 +20,18 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
   const [isReady, setIsReady] = useState(false)
   const [isVideoEnded, setIsVideoEnded] = useState(false)
   const { user } = useAuth()
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [currentSegment, setCurrentSegment] = useState(0);
+  const [segments, setSegments] = useState([{ start: 0, end: 60 }]); 
+
+  const handleSegmentChange = useCallback(() => {
+    if (currentSegment < segments.length - 1) {
+      setCurrentSegment((prevSegment) => prevSegment + 1);
+    } else {
+      onComplete();
+    }
+  }, [currentSegment, segments.length, onComplete]);
+
 
   useEffect(() => {
     if (!window.YT) {
@@ -52,8 +64,13 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
       },
       events: {
         onStateChange: onPlayerStateChange,
+        onReady: (event: any) => {
+          const duration = event.target.getDuration();
+          setVideoDuration(duration);
+          setSegments(calculateSegments(duration));
       },
-    })
+      },
+    }, [isReady, videoId, user, currentSegment, segments])
 
     setIsVideoEnded(false)
 
@@ -87,4 +104,27 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
       )}
     </div>
   )
+}
+
+
+
+function calculateSegments(videoDuration: number) {
+  if (videoDuration <= 60) {
+      return [{ start: 0, end: videoDuration }];
+  } else if (videoDuration <= 3600) {
+      return [{ start: 0, end: 60 }, { start: 61, end: videoDuration }];
+  } else if (videoDuration <= 7200) {
+      return [
+          { start: 0, end: 60 },
+          { start: 61, end: 3660 },
+          { start: 3661, end: videoDuration },
+      ];
+  } else {
+      return [
+          { start: 0, end: 60 },
+          { start: 61, end: 3660 },
+          { start: 3661, end: 7200 },
+          { start: 7201, end: videoDuration },
+      ];
+  }
 }
