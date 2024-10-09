@@ -155,10 +155,11 @@ const courses: Course[] = [
 export default function Course({ params }: { params: { learnId: string } }) {
   const { user } = useAuth()
   const learnId = params.learnId as string
+  console.log("learnId",learnId)
   const [course, setCourse] = useState<Course | null>(null)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0)
   const [showQuiz, setShowQuiz] = useState(false)
-
+  
   useEffect(() => {
     const foundCourse = courses.find(c => c.id === learnId)
     if (foundCourse) {
@@ -173,15 +174,15 @@ export default function Course({ params }: { params: { learnId: string } }) {
       setCurrentLessonIndex(parseInt(savedProgress))
     }
   }, [learnId])
-
+  
   if (!user) {
     return <div className="container mx-auto px-4 py-8">Please log in to view this course.</div>
   }
-
+  
   if (!course) {
     return <div className="container mx-auto px-4 py-8">Course not found.</div>
   }
-
+  
   const currentLesson = course.lessons[currentLessonIndex - 1]
   const handleLessonComplete = () => {
     setShowQuiz(true)
@@ -196,7 +197,7 @@ export default function Course({ params }: { params: { learnId: string } }) {
     }
     
     setCourse({ ...course, lessons: updatedLessons })
-
+    
     if (currentLessonIndex < course.lessons.length - 1) {
       const nextIndex = currentLessonIndex + 1
       setCurrentLessonIndex(nextIndex)
@@ -213,6 +214,7 @@ export default function Course({ params }: { params: { learnId: string } }) {
       setShowQuiz(false)
     }
   }
+  console.log("foundCourse",currentLesson?.videoId)
   return (
     <>
       <PomodoroTimer />
@@ -251,7 +253,7 @@ export default function Course({ params }: { params: { learnId: string } }) {
                     <>
                       <div>
                         <VideoPlayer
-                          videoId={currentLesson.videoId}
+                          videoId={currentLesson?.videoId}
                           onComplete={handleLessonComplete}
                         />
                         <div>{currentLesson.videoId}</div>
