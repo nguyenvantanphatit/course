@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { ChevronDownIcon, SearchIcon } from 'lucide-react'
+import { ChevronDownIcon, ChevronLeft, ChevronRight, SearchIcon } from 'lucide-react'
 
 type Product = {
     id: number
@@ -50,6 +50,9 @@ const sampleProducts: Product[] = [
 
 export default function FilterPage() {
     const [products, setProducts] = useState<Product[]>(sampleProducts);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
+
     const [filters, setFilters] = useState({
         minPrice: 0,
         maxPrice: 1000,
@@ -90,10 +93,11 @@ export default function FilterPage() {
                 filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
                 break;
             default:
-                break; 
+                break;
         }
 
         setProducts(filteredProducts);
+        setCurrentPage(1);
     }, [filters]);
 
     useEffect(() => {
@@ -106,6 +110,12 @@ export default function FilterPage() {
             [filterName]: value
         }));
     };
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+
+    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
     return (
         <section className="py-24 relative">
@@ -265,7 +275,7 @@ export default function FilterPage() {
                     </div>
                     <div className="col-span-12 md:col-span-9">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {products.map((product) => (
+                            {currentItems.map((product) => (
                                 <div key={product.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
                                     <h3 className="font-bold text-lg mb-2">{product.name}</h3>
                                     <p className="text-gray-600 mb-2">{product.description}</p>
@@ -278,6 +288,31 @@ export default function FilterPage() {
                                     <p className="text-sm font-medium text-green-600">Discount: {product.discount}%</p>
                                 </div>
                             ))}
+                        </div>
+                        <div className="flex justify-center items-center space-x-2 mt-6">
+                            <button
+                                className={`p-2 border border-gray-300 rounded-md hover:bg-gray-100 ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}`}
+                                onClick={() => paginate(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <button
+                                    key={i}
+                                    className={`p-2 border rounded-md ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'border-gray-300 hover:bg-gray-100'}`}
+                                    onClick={() => paginate(i + 1)}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                className={`p-2 border border-gray-300 rounded-md hover:bg-gray-100 ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}`}
+                                onClick={() => paginate(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
                         </div>
                     </div>
                 </div>
