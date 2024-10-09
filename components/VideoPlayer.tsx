@@ -8,6 +8,11 @@ type VideoPlayerProps = {
   onComplete: () => void
 }
 
+type Segment = {
+  start: number
+  end: number
+}
+
 declare global {
   interface Window {
     onYouTubeIframeAPIReady: () => void
@@ -15,23 +20,38 @@ declare global {
   }
 }
 
-export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
+export default function Component({ videoId, onComplete }: VideoPlayerProps) {
   const playerRef = useRef<any>(null)
   const [isReady, setIsReady] = useState(false)
   const [isVideoEnded, setIsVideoEnded] = useState(false)
   const { user } = useAuth()
-  const [videoDuration, setVideoDuration] = useState(0);
-  const [currentSegment, setCurrentSegment] = useState(0);
-  const [segments, setSegments] = useState([{ start: 0, end: 60 }]); 
+  const [videoDuration, setVideoDuration] = useState(0)
+  const [currentSegment, setCurrentSegment] = useState(0)
+  const [segments, setSegments] = useState<Segment[]>([])
+
+  const calculateSegments = useCallback((duration: number): Segment[] => {
+    const segments = [];
+    let start = 0;
+    let segmentDuration = 60;
+
+    while (start < duration) {
+      const end = Math.min(start + segmentDuration, duration);
+      segments.push({ start, end });
+      start = end;
+      segmentDuration *= 2;
+    }
+
+    return segments;
+  }, [])
 
   const handleSegmentChange = useCallback(() => {
     if (currentSegment < segments.length - 1) {
-      setCurrentSegment((prevSegment) => prevSegment + 1);
+      setCurrentSegment((prevSegment) => prevSegment + 1)
+      playerRef.current.seekTo(segments[currentSegment + 1].start)
     } else {
-      onComplete();
+      setIsVideoEnded(true)
     }
-  }, [currentSegment, segments.length, onComplete]);
-
+  }, [currentSegment, segments])
 
   useEffect(() => {
     if (!window.YT) {
@@ -61,70 +81,62 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
       videoId: videoId,
       playerVars: {
         controls: user?.isVip ? 1 : 0,
+        start: segments[currentSegment]?.start || 0,
+        end: segments[currentSegment]?.end || undefined,
       },
       events: {
         onStateChange: onPlayerStateChange,
         onReady: (event: any) => {
-          const duration = event.target.getDuration();
-          setVideoDuration(duration);
-          setSegments(calculateSegments(duration));
+          const duration = event.target.getDuration()
+          setVideoDuration(duration)
+          setSegments(calculateSegments(duration))
+        },
       },
-      },
-    }, [isReady, videoId, user, currentSegment, segments])
-
-    setIsVideoEnded(false)
+    })
 
     return () => {
       if (playerRef.current) {
         playerRef.current.destroy()
       }
     }
-  }, [isReady, videoId, user])
+  }, [isReady, videoId, user, currentSegment, segments, calculateSegments])
 
-  const onPlayerStateChange = (event: any) => {
+  const onPlayerStateChange = useCallback((event: any) => {
     if (event.data === window.YT.PlayerState.ENDED) {
-      setIsVideoEnded(true)
+      handleSegmentChange()
     }
-  }
+  }, [handleSegmentChange])
+
+  useEffect(() => {
+    if (!playerRef.current) return
+
+    const checkTime = () => {
+      const currentTime = playerRef.current.getCurrentTime()
+      if (currentTime >= segments[currentSegment].end - 1) {
+        handleSegmentChange()
+      }
+    }
+
+    const intervalId = setInterval(checkTime, 1000)
+
+    return () => clearInterval(intervalId)
+  }, [currentSegment, segments, handleSegmentChange])
 
   const handleCompleteLesson = () => {
     onComplete()
   }
 
   return (
-    <div>
-      <div id="youtube-player"></div>
+    <div className="flex flex-col items-center">
+      <div id="youtube-player" className="w-full max-w-4xl"></div>
       {isVideoEnded && (
         <button
           onClick={handleCompleteLesson}
-          className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="mt-4 px-6 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
         >
           Complete Lesson
         </button>
       )}
     </div>
   )
-}
-
-
-
-function calculateSegments(videoDuration: number) {
-  if (videoDuration <= 60) {
-      return [{ start: 0, end: videoDuration }];
-  } else if (videoDuration <= 3600) {
-      return [{ start: 0, end: 60 }, { start: 61, end: videoDuration }];
-  } else if (videoDuration <= 7200) {
-      return [
-          { start: 0, end: 60 },
-          { start: 61, end: 3660 },
-          { start: 3661, end: videoDuration },
-      ];
-  } else {
-      return [
-          { start: 0, end: 60 },
-          { start: 61, end: 3660 },
-          { start: 3661, end: 7200 },
-          { start: 7201, end: videoDuration },
-      ];
-  }
 }
