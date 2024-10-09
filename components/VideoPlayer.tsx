@@ -111,7 +111,7 @@ export default function Component({ videoId, onComplete }: VideoPlayerProps) {
     } catch (error) {
       console.error("Error accessing videoId:", error);
     }
-  }, [isReady, videoId, user, currentSegment, segments, calculateSegments])
+  }, [isReady, videoId, user])
 
   const onPlayerStateChange = useCallback((event: any) => {
     if (event.data === window.YT.PlayerState.ENDED) {
