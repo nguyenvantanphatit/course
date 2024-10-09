@@ -53,8 +53,6 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
 
     const initializePlayer = () => {
       playerRef.current = new window.YT.Player('youtube-player', {
-        height: '460',
-        width: '1080',
         videoId,
         playerVars: {
           controls: user?.isVip ? 1 : 0,
@@ -94,7 +92,7 @@ export default function VideoPlayer({ videoId, onComplete }: VideoPlayerProps) {
   }
 
   return (
-    <div>
+    <div className="video-container">
       <div id="youtube-player"></div>
       {isVideoEnded && (
         <button
