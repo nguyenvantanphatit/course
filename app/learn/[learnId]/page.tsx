@@ -41,7 +41,7 @@ const courses: Course[] = [
     level: 'Beginner',
     duration: '4 weeks',
     lessons: [
-      { id: 1, title: 'What is React?', duration: '15 minutes', videoId: "TPACABQTHvM", completed: false, locked: false,},
+      { id: 1, title: 'What is React?', duration: '15 minutes', videoId: "TPACABQTHvM", completed: false, locked: false, },
       { id: 2, title: 'Creating Components', duration: '30 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: true },
       { id: 3, title: 'State and Props', duration: '45 minutes', videoId: "u6PQ5xZAv7Q", completed: false, locked: true },
       { id: 4, title: 'Hooks in React', duration: '60 minutes', videoId: "YH6ui_dG7Ow", completed: false, locked: true },
@@ -188,7 +188,19 @@ export default function Course({ params }: { params: { learnId: string } }) {
   const currentLesson = course.lessons[currentLessonIndex]
 
   const handleLessonComplete = () => {
-    setShowQuiz(true)
+    if (currentLessonIndex === course.lessons.length - 1) {
+      setShowQuiz(true);  // Show the quiz for the last lesson
+    } else {
+      // If it's not the last lesson, automatically unlock the next one
+      const updatedLessons = [...course.lessons];
+      updatedLessons[currentLessonIndex].completed = true;
+
+      const nextLessonIndex = currentLessonIndex + 1;
+      updatedLessons[nextLessonIndex].locked = false;
+      setCourse({ ...course, lessons: updatedLessons });
+      setCurrentLessonIndex(nextLessonIndex);
+      localStorage.setItem(`course_${learnId}_progress`, nextLessonIndex.toString());
+    }
   }
 
   const handleQuizComplete = (score: number) => {
@@ -246,22 +258,20 @@ export default function Course({ params }: { params: { learnId: string } }) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div className="md:col-span-3">
-                  {showQuiz ? (
+                  {showQuiz && (
                     <QuizSection questions={course.questions} onComplete={handleQuizComplete} />
-                  ) : (
-                    <>
-                      <div>
-                        <VideoPlayer
-                          videoId={currentLesson?.videoId}
-                          onComplete={handleLessonComplete}
-                        />
-                        <div>{currentLesson.id}</div>
-                      </div>
-                      <h2 className="text-2xl font-semibold my-4">{currentLesson.title}</h2>
-                      <p className="text-gray-600 mb-4">Duration: {currentLesson.duration}</p>
-                      <CommentSection lessonId={currentLesson.id} />
-                    </>
-                  )}
+                  )
+                  }
+                  <div>
+                    <VideoPlayer
+                      videoId={currentLesson?.videoId}
+                      onComplete={handleLessonComplete}
+                    />
+                    <div>{currentLesson.id}</div>
+                  </div>
+                  <h2 className="text-2xl font-semibold my-4">{currentLesson.title}</h2>
+                  <p className="text-gray-600 mb-4">Duration: {currentLesson.duration}</p>
+                  <CommentSection lessonId={currentLesson.id} />
                 </div>
                 <div>
                   <h2 className="text-2xl font-semibold mb-4">Lessons</h2>
