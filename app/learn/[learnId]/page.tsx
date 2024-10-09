@@ -253,7 +253,7 @@ export default function Course({ params }: { params: { learnId: string } }) {
                     <>
                       <div>
                         <VideoPlayer
-                          videoId={currentLesson?.videoId}
+                          videoId={currentLesson?.videoId ? currentLesson?.videoId : "Mcw8Mp8PYUE"}
                           onComplete={handleLessonComplete}
                         />
                         <div>{currentLesson.videoId}</div>
