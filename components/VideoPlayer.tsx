@@ -69,35 +69,38 @@ export default function Component({ videoId, onComplete }: VideoPlayerProps) {
   }, [])
 
   useEffect(() => {
-    if (!isReady) return
-
-    if (playerRef.current) {
-      playerRef.current.destroy()
-    }
-
-    playerRef.current = new window.YT.Player('youtube-player', {
-      height: '460',
-      width: '1080',
-      videoId: videoId,
-      playerVars: {
-        controls: user?.isVip ? 1 : 0,
-        start: segments[currentSegment]?.start || 0,
-        end: segments[currentSegment]?.end || undefined,
-      },
-      events: {
-        onStateChange: onPlayerStateChange,
-        onReady: (event: any) => {
-          const duration = event.target.getDuration()
-          setVideoDuration(duration)
-          setSegments(calculateSegments(duration))
-        },
-      },
-    })
-
-    return () => {
+    try {
+      if (!isReady || !videoId) return;
       if (playerRef.current) {
         playerRef.current.destroy()
       }
+
+      playerRef.current = new window.YT.Player('youtube-player', {
+        height: '460',
+        width: '1080',
+        videoId: videoId,
+        playerVars: {
+          controls: user?.isVip ? 1 : 0,
+          start: segments[currentSegment]?.start || 0,
+          end: segments[currentSegment]?.end || undefined,
+        },
+        events: {
+          onStateChange: onPlayerStateChange,
+          onReady: (event: any) => {
+            const duration = event.target.getDuration()
+            setVideoDuration(duration)
+            setSegments(calculateSegments(duration))
+          },
+        },
+      })
+
+      return () => {
+        if (playerRef.current) {
+          playerRef.current.destroy()
+        }
+      }
+    } catch (error) {
+      console.error("Error accessing videoId:", error);
     }
   }, [isReady, videoId, user, currentSegment, segments, calculateSegments])
 
