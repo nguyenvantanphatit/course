@@ -167,11 +167,16 @@ export default function Course({ params }: { params: { learnId: string } }) {
         ...lesson,
       }))
       setCourse({ ...foundCourse, lessons: initializedLessons })
+      
     }
+    
 
     const savedProgress = localStorage.getItem(`course_${learnId}_progress`)
     if (savedProgress) {
       setCurrentLessonIndex(parseInt(savedProgress))
+    }
+    else {
+      setCurrentLessonIndex(1)
     }
   }, [learnId])
   
@@ -214,7 +219,6 @@ export default function Course({ params }: { params: { learnId: string } }) {
       setShowQuiz(false)
     }
   }
-  console.log("foundCourse",currentLesson?.videoId)
   return (
     <>
       <PomodoroTimer />
