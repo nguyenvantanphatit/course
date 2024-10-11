@@ -3,111 +3,174 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ChevronDownIcon, ChevronLeft, ChevronRight, SearchIcon } from 'lucide-react'
 
-type Product = {
+interface PriceVariant {
+    id: number;
+    color: string;
+    price: number;
+    originalPrice: number;
+    stockStatus: "In Stock" | "Out of Stock" | "Low Stock";
+}
+
+interface SizeVariant {
+    id: number;
+    size: string;
+    colors: PriceVariant[];
+}
+
+interface Product {
     id: number;
     general: {
         name: string;
         description: string;
+        brand: string;
+        category: string;
     };
     details: {
-        pricing: {
-            price: number;
-            originalPrice: number;
-        };
-        availability: {
-            stockStatus: string;
-            size: string;
-        };
-        attributes: {
-            type: string;
-            color: string;
-        };
+        material: string;
+        careInstructions: string[];
+        features: string[];
     };
+    variants: SizeVariant[];
     promotion: {
         offer: string;
-        discount: number;
+        discountPercentage: number;
     };
-};
-
+}
 
 const sampleProducts: Product[] = [
     {
         id: 1,
         general: {
-            name: "Product 1",
-            description: "Description 1"
+            name: "Classic T-Shirt",
+            description: "A comfortable and versatile t-shirt for everyday wear.",
+            brand: "ComfortWear",
+            category: "Tops",
         },
         details: {
-            pricing: {
-                price: 100,
-                originalPrice: 150,
-            },
-            availability: {
-                stockStatus: "In Stock",
-                size: "S"
-            },
-            attributes: {
-                type: "Type A",
-                color: "Red"
-            }
+            material: "100% Cotton",
+            careInstructions: ["Machine wash cold", "Tumble dry low"],
+            features: ["Breathable fabric", "Ribbed crew neck", "Short sleeves"],
         },
+        variants: [
+            {
+                id: 101,
+                size: "S",
+                colors: [
+                    { id: 1001, color: "White", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                    { id: 1002, color: "Black", price: 29.99, originalPrice: 54.99, stockStatus: "In Stock" },
+                ],
+            },
+            {
+                id: 102,
+                size: "M",
+                colors: [
+                    { id: 1003, color: "White", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                    { id: 1004, color: "Black", price: 19.99, originalPrice: 24.99, stockStatus: "Out of Stock" },
+                ],
+            },
+            {
+                id: 103,
+                size: "L",
+                colors: [
+                    { id: 1005, color: "White", price: 21.99, originalPrice: 26.99, stockStatus: "Low Stock" },
+                    { id: 1006, color: "Black", price: 21.99, originalPrice: 26.99, stockStatus: "In Stock" },
+                ],
+            },
+        ],
         promotion: {
-            offer: "5% off",
-            discount: 20
-        }
+            offer: "Buy 2, Get 1 Free",
+            discountPercentage: 20,
+        },
     },
     {
         id: 2,
         general: {
-            name: "Product 2",
-            description: "Description 2"
+            name: "Slim Fit Jeans",
+            description: "Modern slim fit jeans with a comfortable stretch.",
+            brand: "UrbanDenim",
+            category: "Bottoms",
         },
         details: {
-            pricing: {
-                price: 200,
-                originalPrice: 250,
-            },
-            availability: {
-                stockStatus: "Out of Stock",
-                size: "M"
-            },
-            attributes: {
-                type: "Type B",
-                color: "Blue"
-            }
+            material: "98% Cotton, 2% Elastane",
+            careInstructions: ["Machine wash cold", "Hang to dry"],
+            features: ["Slim fit", "Five-pocket styling", "Button closure"],
         },
+        variants: [
+            {
+                id: 104,
+                size: "S",
+                colors: [
+                    { id: 1001, color: "White", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                    { id: 1002, color: "Black", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                ],
+            },
+            {
+                id: 105,
+                size: "M",
+                colors: [
+                    { id: 1003, color: "White", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                    { id: 1004, color: "Black", price: 19.99, originalPrice: 24.99, stockStatus: "Out of Stock" },
+                ],
+            },
+            {
+                id: 106,
+                size: "L",
+                colors: [
+                    { id: 1005, color: "White", price: 21.99, originalPrice: 26.99, stockStatus: "Low Stock" },
+                    { id: 1006, color: "Black", price: 21.99, originalPrice: 26.99, stockStatus: "In Stock" },
+                ],
+            },
+        ],
         promotion: {
-            offer: "10% off",
-            discount: 30
-        }
+            offer: "15% off",
+            discountPercentage: 15,
+        },
     },
     {
         id: 3,
         general: {
-            name: "Product 3",
-            description: "Description 3"
+            name: "Running Shoes",
+            description: "Lightweight and responsive running shoes for optimal performance.",
+            brand: "SpeedRunner",
+            category: "Footwear",
         },
         details: {
-            pricing: {
-                price: 300,
-                originalPrice: 400,
-            },
-            availability: {
-                stockStatus: "In Stock",
-                size: "L"
-            },
-            attributes: {
-                type: "Type C",
-                color: "Green"
-            }
+            material: "Synthetic mesh upper, Rubber sole",
+            careInstructions: ["Wipe clean with a damp cloth", "Air dry"],
+            features: ["Breathable mesh upper", "Cushioned midsole", "Durable outsole"],
         },
+        variants: [
+            {
+                id: 107,
+                size: "S",
+                colors: [
+                    { id: 1001, color: "White", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                    { id: 1002, color: "Black", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                ],
+            },
+            {
+                id: 108,
+                size: "M",
+                colors: [
+                    { id: 1003, color: "White", price: 19.99, originalPrice: 24.99, stockStatus: "In Stock" },
+                    { id: 1004, color: "Black", price: 19.99, originalPrice: 24.99, stockStatus: "Out of Stock" },
+                ],
+            },
+            {
+                id: 109,
+                size: "L",
+                colors: [
+                    { id: 1005, color: "White", price: 21.99, originalPrice: 26.99, stockStatus: "Low Stock" },
+                    { id: 1006, color: "Black", price: 21.99, originalPrice: 26.99, stockStatus: "In Stock" },
+                ],
+            },
+        ],
         promotion: {
-            offer: "15% off",
-            discount: 50
-        }
-    }
+            offer: "Free shipping",
+            discountPercentage: 10,
+        },
+    },
 ];
-
 
 export default function Filter() {
     const [products, setProducts] = useState<Product[]>(sampleProducts);
@@ -122,30 +185,46 @@ export default function Filter() {
         availability: '',
         color: '',
         offer: '',
+        brand: "",
+        category: '',
         discount: 0,
         sortBy: ''
     });
 
+    const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
+    const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
+
     const applyFiltersAndSort = useCallback(() => {
         let filteredProducts = sampleProducts.filter(product => {
-            return (
-                product.details.pricing.price >= filters.minPrice &&
-                product.details.pricing.price <= filters.maxPrice &&
-                (!filters.size || product.details.availability.size === filters.size) &&
-                (!filters.type || product.details.attributes.type === filters.type) &&
-                (!filters.availability || product.details.availability.stockStatus === filters.availability) &&
-                (!filters.color || product.details.attributes.color === filters.color) &&
+            return product.variants.some(sizeVariant =>
+                sizeVariant.colors.some(colorVariant =>
+                    colorVariant.price >= filters.minPrice &&
+                    colorVariant.price <= filters.maxPrice &&
+                    (!filters.size || sizeVariant.size === filters.size) &&
+                    (!filters.color || colorVariant.color === filters.color) &&
+                    (!filters.availability || colorVariant.stockStatus === filters.availability)
+                )
+            ) &&
+                (!filters.brand || product.general.brand === filters.brand) &&
+                (!filters.category || product.general.category === filters.category) &&
                 (!filters.offer || product.promotion.offer === filters.offer) &&
-                product.promotion.discount >= filters.discount
-            );
+                product.promotion.discountPercentage >= filters.discount;
         });
 
         switch (filters.sortBy) {
             case 'priceAsc':
-                filteredProducts.sort((a, b) => a.details.pricing.price - b.details.pricing.price);
+                filteredProducts.sort((a, b) => {
+                    const minPriceA = Math.min(...a.variants.flatMap(v => v.colors.map(c => c.price)));
+                    const minPriceB = Math.min(...b.variants.flatMap(v => v.colors.map(c => c.price)));
+                    return minPriceA - minPriceB;
+                });
                 break;
             case 'priceDesc':
-                filteredProducts.sort((a, b) => b.details.pricing.price - a.details.pricing.price);
+                filteredProducts.sort((a, b) => {
+                    const maxPriceA = Math.max(...a.variants.flatMap(v => v.colors.map(c => c.price)));
+                    const maxPriceB = Math.max(...b.variants.flatMap(v => v.colors.map(c => c.price)));
+                    return maxPriceB - maxPriceA;
+                });
                 break;
             case 'nameAsc':
                 filteredProducts.sort((a, b) => a.general.name.localeCompare(b.general.name));
@@ -161,7 +240,6 @@ export default function Filter() {
         setCurrentPage(1);
     }, [filters]);
 
-
     useEffect(() => {
         applyFiltersAndSort();
     }, [applyFiltersAndSort]);
@@ -172,6 +250,7 @@ export default function Filter() {
             [filterName]: value
         }));
     };
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
@@ -179,6 +258,14 @@ export default function Filter() {
 
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
+    const handleSizeSelect = (sizeId: number) => {
+        setSelectedSizeId(sizeId);
+        setSelectedColorId(null);
+    };
+
+    const handleColorSelect = (colorId: number) => {
+        setSelectedColorId(colorId);
+    };
     return (
         <section className="py-24 relative">
             <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
@@ -327,6 +414,8 @@ export default function Filter() {
                                     availability: '',
                                     color: '',
                                     offer: '',
+                                    brand: "",
+                                    category: '',
                                     discount: 0,
                                     sortBy: ''
                                 })}
@@ -337,18 +426,72 @@ export default function Filter() {
                     </div>
                     <div className="col-span-12 md:col-span-9">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {currentItems.map((product) => (
-                                <div key={product.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-                                    <h3>{product.general.name}</h3>
-                                    <p>{product.general.description}</p>
-                                    <p>Price: {product.details.pricing.price}</p>
-                                    <p>Original Price: {product.details.pricing.originalPrice}</p>
-                                    <p>Size: {product.details.availability.size}</p>
-                                    <p>Availability: {product.details.availability.stockStatus}</p>
-                                    <p>Type: {product.details.attributes.type}</p>
-                                    <p>Color: {product.details.attributes.color}</p>
-                                    <p>Offer: {product.promotion.offer}</p>
-                                    <p>Discount: {product.promotion.discount}%</p>
+                            {currentItems.map(product => (
+                                <div key={product.id} className="border p-4 rounded-lg shadow-md">
+                                    <h3 className="text-xl font-bold">{product.general.name}</h3>
+                                    <p className="text-gray-600">{product.general.description}</p>
+                                    <p className="mt-2"><span className="font-semibold">Brand:</span> {product.general.brand}</p>
+                                    <p><span className="font-semibold">Category:</span> {product.general.category}</p>
+                                    <div className="mt-4">
+                                        <h4 className="font-semibold">Sizes:</h4>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {product.variants.map(variant => (
+                                                <button
+                                                    key={variant.size}
+                                                    className={`px-3 py-1 border rounded ${selectedSizeId === variant.id ? 'bg-blue-500 text-white' : 'bg-white'}`}
+                                                    onClick={() => handleSizeSelect(variant.id)}
+                                                >
+                                                    {variant.size}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {selectedSizeId && (
+                                        <div className="mt-4">
+                                            <h4 className="font-semibold">Colors:</h4>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {product.variants.find(v => v.id === selectedSizeId)?.colors.map(colorVariant => (
+                                                    <button
+                                                        key={colorVariant.color}
+                                                        className={`px-3 py-1 border rounded ${selectedColorId === colorVariant.id ? 'bg-blue-500 text-white' : 'bg-white'}`}
+                                                        onClick={() => handleColorSelect(colorVariant.id)}
+                                                    >
+                                                        {colorVariant.color}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {selectedSizeId && selectedColorId && (
+                                        <div className="mt-4">
+                                            <h4 className="font-semibold">Price:</h4>
+                                            {(() => {
+                                                const selectedVariant = product.variants.find(v => v.id === selectedSizeId);
+                                                const selectedColorVariant = selectedVariant?.colors.find(c => c.id === selectedColorId);
+                                                if (selectedColorVariant) {
+                                                    return (
+                                                        <div>
+                                                            <p>Price: ${selectedColorVariant.price.toFixed(2)}</p>
+                                                            <p>Original Price: ${selectedColorVariant.originalPrice.toFixed(2)}</p>
+                                                            <p>Status: {selectedColorVariant.stockStatus}</p>
+                                                        </div>
+                                                    );
+                                                }
+                                                return <p>No price information available for the selected combination.</p>;
+                                            })()}
+                                        </div>
+                                    )}
+                                    <div className="mt-4">
+                                        <h4 className="font-semibold">Details:</h4>
+                                        <p><span className="font-semibold">Material:</span> {product.details.material}</p>
+                                        <p><span className="font-semibold">Care Instructions:</span> {product.details.careInstructions.join(", ")}</p>
+                                        <p><span className="font-semibold">Features:</span> {product.details.features.join(", ")}</p>
+                                    </div>
+                                    <div className="mt-4">
+                                        <h4 className="font-semibold">Promotion:</h4>
+                                        <p>Offer: {product.promotion.offer}</p>
+                                        <p>Discount: {product.promotion.discountPercentage}%</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
