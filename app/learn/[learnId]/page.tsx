@@ -430,24 +430,34 @@ export default function Course({ params }: { params: { learnId: string } }) {
               </div>
               <div className="my-8">
                 <h2 className="text-2xl font-semibold mb-4">Course Description</h2>
-                <p className="text-gray-600">
-                  This comprehensive course will take you from intermediate to advanced level in JavaScript.
-                  You'll learn about closures, prototypes, async programming, and much more. By the end of
-                  this course, you'll be able to build complex applications with confidence.
-                </p>
+                <p className="text-gray-600">{course.description}</p>
               </div>
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold mb-4">What You'll Learn</h2>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {['Advanced JavaScript concepts', 'Asynchronous programming', 'Design patterns', 'Performance optimization', 'Testing and debugging', 'Real-world project building'].map((item, index) => (
+                  {course.tags.map((tag, index) => (
                     <li key={index} className="flex items-center">
                       <svg className="w-6 h-6 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      {item}
+                      {tag}
                     </li>
                   ))}
                 </ul>
+              </div>
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold mb-4">Prerequisites</h2>
+                <ul className="list-disc list-inside">
+                  {course.prerequisites.map((prerequisite, index) => (
+                    <li key={index} className="text-gray-600">{prerequisite}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold mb-4">Course Forum</h2>
+                <a href={course.forum.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                  Join the discussion
+                </a>
               </div>
             </div>
           </div>
