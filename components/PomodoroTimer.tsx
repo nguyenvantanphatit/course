@@ -50,24 +50,20 @@ export default function PomodoroTimer() {
   }
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-      <h2 className="text-2xl font-bold mb-4">Pomodoro Timer</h2>
-      <div className="text-6xl font-bold text-center mb-4">
+    <div className="bg-white shadow-md flex items-center justify-end gap-2">
+      <div className="text-2xl font-bold text-center">
         {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
       </div>
-      <p className="text-center mb-4">
-        {mode === 'work' ? 'Work Session' : 'Break Time'}
-      </p>
-      <div className="flex justify-center space-x-4">
+      <div className="flex justify-center space-x-4 my-2">
         <button
           onClick={toggleTimer}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded"
+          className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-1 px-4 rounded"
         >
           {isActive ? 'Pause' : 'Start'}
         </button>
         <button
           onClick={resetTimer}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 rounded"
         >
           Reset
         </button>

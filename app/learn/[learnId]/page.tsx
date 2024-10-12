@@ -7,29 +7,78 @@ import QuizSection from '@/components/QuizSection'
 import Image from 'next/image'
 import PomodoroTimer from '@/components/PomodoroTimer'
 
-type Lesson = {
-  id: number
-  title: string
-  duration: string
-  completed: boolean
-  videoId: string;
-  locked: any;
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  instructor: {
+    id: string;
+    name: string;
+    bio: string;
+    avatar: string;
+  };
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  duration: string;
+  tags: string[];
+  prerequisites: string[];
+  lessons: Lesson[];
+  courseQuiz: Quiz;
+  progress: number;
+  rating: {
+    average: number;
+    count: number;
+  };
+  certificate: {
+    title: string;
+    description: string;
+  };
+  forum: {
+    id: string;
+    url: string;
+  };
 }
 
-type Course = {
-  id: string
-  title: string
-  description: string
-  instructor: string
-  level: string
-  duration: string
-  lessons: Lesson[]
-  questions: {
-    id: string
-    question: string
-    options: string[]
-    correctAnswer: number
-  }[]
+interface Lesson {
+  id: number;
+  title: string;
+  description: string;
+  duration: string;
+  videoId: string;
+  completed: boolean;
+  locked: boolean;
+  resources: Resource[];
+  quiz: Quiz | null;
+  comments: Comment[];
+}
+
+interface Resource {
+  id: string;
+  title: string;
+  type: 'pdf' | 'link' | 'code' | 'image';
+  url: string;
+}
+
+interface Quiz {
+  id: string;
+  questions: Question[];
+  passingScore: number;
+}
+
+interface Question {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+}
+
+interface Comment {
+  id: string;
+  userId: string;
+  username: string;
+  content: string;
+  timestamp: string;
+  replies: Comment[];
 }
 
 const courses: Course[] = [
@@ -37,120 +86,191 @@ const courses: Course[] = [
     id: '1',
     title: 'Introduction to React',
     description: 'Learn the basics of React, including components, state, and props.',
-    instructor: 'John Doe',
+    instructor: {
+      id: 'inst1',
+      name: 'John Doe',
+      bio: 'Experienced React developer and educator',
+      avatar: 'https://example.com/john-doe-avatar.jpg',
+    },
     level: 'Beginner',
     duration: '4 weeks',
+    tags: ['React', 'JavaScript', 'Web Development'],
+    prerequisites: ['Basic JavaScript knowledge', 'HTML and CSS familiarity'],
     lessons: [
-      { id: 1, title: 'What is React?', duration: '15 minutes', videoId: "TPACABQTHvM", completed: false, locked: false, },
-      { id: 2, title: 'Creating Components', duration: '30 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: true },
-      { id: 3, title: 'State and Props', duration: '45 minutes', videoId: "u6PQ5xZAv7Q", completed: false, locked: true },
-      { id: 4, title: 'Hooks in React', duration: '60 minutes', videoId: "YH6ui_dG7Ow", completed: false, locked: true },
+      {
+        id: 1,
+        title: 'What is React?',
+        description: 'An introduction to React and its core concepts',
+        duration: '15 minutes',
+        videoId: "TPACABQTHvM",
+        completed: false,
+        locked: false,
+        resources: [
+          {
+            id: 'res1',
+            title: 'React Documentation',
+            type: 'link',
+            url: 'https://reactjs.org/docs/getting-started.html',
+          },
+        ],
+        quiz: null,
+        comments: [],
+      },
+      {
+        id: 2,
+        title: 'Creating Components',
+        description: 'Learn how to create and use React components',
+        duration: '30 minutes',
+        videoId: "Mcw8Mp8PYUE",
+        completed: false,
+        locked: true,
+        resources: [
+          {
+            id: 'res2',
+            title: 'Component Basics',
+            type: 'pdf',
+            url: 'https://example.com/react-components.pdf',
+          },
+        ],
+        quiz: {
+          id: 'q2',
+          questions: [
+            {
+              id: 'q2_1',
+              question: 'What is a React component?',
+              options: ['A function', 'A class', 'Both A and B', 'Neither A nor B'],
+              correctAnswer: 2,
+              explanation: 'In React, a component can be defined as either a function or a class.',
+            },
+          ],
+          passingScore: 1,
+        },
+        comments: [],
+      },
     ],
-    questions: [
-      {
-        id: 'q1',
-        question: 'What is React?',
-        options: ['A database', 'A JavaScript library', 'A programming language', 'An operating system'],
-        correctAnswer: 1
-      },
-      {
-        id: 'q2',
-        question: 'What is JSX?',
-        options: ['A JavaScript extension', 'A React component', 'A styling framework', 'A build tool'],
-        correctAnswer: 0
-      },
-      {
-        id: 'q3',
-        question: 'What is a component in React?',
-        options: ['A function', 'A class', 'Both A and B', 'Neither A nor B'],
-        correctAnswer: 2
-      },
-      {
-        id: 'q4',
-        question: 'What is the virtual DOM?',
-        options: ['A browser feature', 'A React concept', 'A JavaScript object', 'A CSS technique'],
-        correctAnswer: 2
-      },
-      {
-        id: 'q5',
-        question: 'What is the purpose of state in React?',
-        options: ['To store static data', 'To handle user input', 'To manage component data', 'To style components'],
-        correctAnswer: 2
-      }
-    ]
+    courseQuiz: {
+      id: 'final_quiz',
+      questions: [
+        {
+          id: 'q1',
+          question: 'What is React?',
+          options: ['A database', 'A JavaScript library', 'A programming language', 'An operating system'],
+          correctAnswer: 1,
+          explanation: 'React is a JavaScript library for building user interfaces.',
+        },
+      ],
+      passingScore: 4,
+    },
+    progress: 0,
+    rating: {
+      average: 4.7,
+      count: 1250,
+    },
+    certificate: {
+      title: 'React Fundamentals',
+      description: 'Successfully completed the Introduction to React course',
+    },
+    forum: {
+      id: 'forum1',
+      url: 'https://example.com/courses/1/forum',
+    },
+
   },
   {
     id: '2',
-    title: 'Advanced JavaScript Concepts',
-    description: 'Dive deep into advanced JavaScript topics like closures, prototypes, and async programming.',
-    instructor: 'Jane Smith',
-    level: 'Intermediate',
-    duration: '6 weeks',
+    title: 'Introduction to NodeJs',
+    description: 'Learn the basics of NodeJs, including components, state, and props.',
+    instructor: {
+      id: 'inst1',
+      name: 'John Doe',
+      bio: 'Experienced React developer and educator',
+      avatar: 'https://example.com/john-doe-avatar.jpg',
+    },
+    level: 'Beginner',
+    duration: '4 weeks',
+    tags: ['React', 'JavaScript', 'Web Development'],
+    prerequisites: ['Basic JavaScript knowledge', 'HTML and CSS familiarity'],
     lessons: [
-      { id: 1, title: 'Closures and Scope', duration: '45 minutes', videoId: "Mcw8Mp8PYUE", completed: false, locked: false },
-      { id: 2, title: 'Prototypes and Inheritance', duration: '60 minutes', videoId: "jTRfhbWRuro", completed: false, locked: true },
-      { id: 3, title: 'Async Programming with Promises', duration: '75 minutes', videoId: "yVsaCVEfPn4", completed: false, locked: true },
-      { id: 4, title: 'ES6+ Features', duration: '90 minutes', videoId: "N_sUsq_y10U", completed: false, locked: true },
+      {
+        id: 1,
+        title: 'What is React?',
+        description: 'An introduction to React and its core concepts',
+        duration: '15 minutes',
+        videoId: "TPACABQTHvM",
+        completed: false,
+        locked: false,
+        resources: [
+          {
+            id: 'res1',
+            title: 'React Documentation',
+            type: 'link',
+            url: 'https://reactjs.org/docs/getting-started.html',
+          },
+        ],
+        quiz: null,
+        comments: [],
+      },
+      {
+        id: 2,
+        title: 'Creating Components',
+        description: 'Learn how to create and use React components',
+        duration: '30 minutes',
+        videoId: "Mcw8Mp8PYUE",
+        completed: false,
+        locked: true,
+        resources: [
+          {
+            id: 'res2',
+            title: 'Component Basics',
+            type: 'pdf',
+            url: 'https://example.com/react-components.pdf',
+          },
+        ],
+        quiz: {
+          id: 'q2',
+          questions: [
+            {
+              id: 'q2_1',
+              question: 'What is a React component?',
+              options: ['A function', 'A class', 'Both A and B', 'Neither A nor B'],
+              correctAnswer: 2,
+              explanation: 'In React, a component can be defined as either a function or a class.',
+            },
+          ],
+          passingScore: 1,
+        },
+        comments: [],
+      },
     ],
-    questions: [
-      {
-        id: 'q1',
-        question: 'What is React?',
-        options: ['A database', 'A JavaScript library', 'A programming language', 'An operating system'],
-        correctAnswer: 1
-      },
-      {
-        id: 'q2',
-        question: 'What is JSX?',
-        options: ['A JavaScript extension', 'A React component', 'A styling framework', 'A build tool'],
-        correctAnswer: 0
-      },
-      {
-        id: 'q3',
-        question: 'What is a component in React?',
-        options: ['A function', 'A class', 'Both A and B', 'Neither A nor B'],
-        correctAnswer: 2
-      },
-      {
-        id: 'q4',
-        question: 'What is the virtual DOM?',
-        options: ['A browser feature', 'A React concept', 'A JavaScript object', 'A CSS technique'],
-        correctAnswer: 2
-      },
-      {
-        id: 'q5',
-        question: 'What is the purpose of state in React?',
-        options: ['To store static data', 'To handle user input', 'To manage component data', 'To style components'],
-        correctAnswer: 2
-      }
-    ]
+    courseQuiz: {
+      id: 'final_quiz',
+      questions: [
+        {
+          id: 'q1',
+          question: 'What is React?',
+          options: ['A database', 'A JavaScript library', 'A programming language', 'An operating system'],
+          correctAnswer: 1,
+          explanation: 'React is a JavaScript library for building user interfaces.',
+        },
+      ],
+      passingScore: 4,
+    },
+    progress: 0,
+    rating: {
+      average: 4.7,
+      count: 1250,
+    },
+    certificate: {
+      title: 'React Fundamentals',
+      description: 'Successfully completed the Introduction to React course',
+    },
+    forum: {
+      id: 'forum1',
+      url: 'https://example.com/courses/1/forum',
+    },
+
   },
-  {
-    id: '3',
-    title: 'Advanced NextJs Concepts',
-    description: 'Dive deep into advanced JavaScript topics like closures, prototypes, and async programming.',
-    instructor: 'Jane Smith',
-    level: 'Intermediate',
-    duration: '6 weeks',
-    lessons: [
-      { id: 1, title: 'Closures and Scope', duration: '45 minutes', videoId: "QzPuWB9Pius", completed: false, locked: false },
-    ],
-    questions: [
-      {
-        id: 'q1',
-        question: 'What is React?',
-        options: ['A database', 'A JavaScript library', 'A programming language', 'An operating system'],
-        correctAnswer: 1
-      },
-      {
-        id: 'q2',
-        question: 'What is JSX?',
-        options: ['A JavaScript extension', 'A React component', 'A styling framework', 'A build tool'],
-        correctAnswer: 0
-      }
-    ]
-  },
-]
+];
 
 export default function Course({ params }: { params: { learnId: string } }) {
   const { user } = useAuth()
@@ -189,9 +309,8 @@ export default function Course({ params }: { params: { learnId: string } }) {
 
   const handleLessonComplete = () => {
     if (currentLessonIndex === course.lessons.length - 1) {
-      setShowQuiz(true);  // Show the quiz for the last lesson
+      setShowQuiz(true);  
     } else {
-      // If it's not the last lesson, automatically unlock the next one
       const updatedLessons = [...course.lessons];
       updatedLessons[currentLessonIndex].completed = true;
 
@@ -214,7 +333,7 @@ export default function Course({ params }: { params: { learnId: string } }) {
       setShowQuiz(false)
       localStorage.setItem(`course_${learnId}_progress`, nextLessonIndex.toString())
     } else {
-      alert(`Congratulations! You've completed the course with a score of ${score}/${course.questions.length}`)
+      alert(`Congratulations! You've completed the course with a score of ${score}/${course.courseQuiz.questions.length}`)
     }
 
     setCourse({ ...course, lessons: updatedLessons })
@@ -226,6 +345,7 @@ export default function Course({ params }: { params: { learnId: string } }) {
       setShowQuiz(false)
     }
   }
+  console.log("course",course)
   return (
     <>
       <PomodoroTimer />
@@ -259,7 +379,7 @@ export default function Course({ params }: { params: { learnId: string } }) {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div className="md:col-span-3">
                   {showQuiz && (
-                    <QuizSection questions={course.questions} onComplete={handleQuizComplete} />
+                    <QuizSection questions={course.courseQuiz.questions} onComplete={handleQuizComplete} />
                   )
                   }
                   <div>
